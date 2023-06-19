@@ -7,13 +7,10 @@ import org.junit.jupiter.api.Test;
 import ru.job4j.cinema.configuration.DatasourceConfiguration;
 import ru.job4j.cinema.model.*;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Properties;
 
-import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,8 +28,6 @@ class Sql2oTicketRepositoryTest {
 
     private static Sql2oHallRepository sql2oHallRepository;
 
-    private static Sql2oUserRepository sql2oUserRepository;
-
     private static File file;
 
     private static Genre genre;
@@ -42,8 +37,6 @@ class Sql2oTicketRepositoryTest {
     private static Hall hall;
 
     private static FilmSession filmSession;
-
-    private static User user;
 
     @BeforeAll
     public static void initRepositories() throws Exception {
@@ -65,7 +58,6 @@ class Sql2oTicketRepositoryTest {
         sql2oFileRepository = new Sql2oFileRepository(sql2o);
         sql2oGenreRepository = new Sql2oGenreRepository(sql2o);
         sql2oHallRepository = new Sql2oHallRepository(sql2o);
-        sql2oUserRepository = new Sql2oUserRepository(sql2o);
 
         file = new File("test", "test");
         sql2oFileRepository.save(file);
@@ -79,21 +71,17 @@ class Sql2oTicketRepositoryTest {
         hall = new Hall(1, "test1", 10, 10, "test1");
         sql2oHallRepository.save(hall);
 
-        user = new User(1, "name", "email", "password");
-        sql2oUserRepository.save(user);
-
         filmSession = new FilmSession(1, film.getId(), hall.getId(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(60), 1);
         sql2oFilmSessionRepository.save(filmSession);
     }
 
     @AfterAll
     public static void deleteFiles() {
+        sql2oFilmSessionRepository.deleteById(filmSession.getId());
         sql2oFilmRepository.deleteById(film.getId());
+        sql2oFileRepository.deleteById(file.getId());
         sql2oGenreRepository.deleteById(genre.getId());
         sql2oHallRepository.deleteById(hall.getId());
-        sql2oFileRepository.deleteById(file.getId());
-        sql2oFilmSessionRepository.deleteById(filmSession.getId());
-        sql2oUserRepository.deleteById(user.getId());
     }
 
     @AfterEach
@@ -106,16 +94,16 @@ class Sql2oTicketRepositoryTest {
 
     @Test
     void whenSaveThenGetSame() {
-        var ticket = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, user.getId()));
+        var ticket = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, 1));
         var savedTicket = sql2oTicketRepository.findById(ticket.get().getId()).get();
         assertThat(savedTicket).usingRecursiveComparison().isEqualTo(savedTicket);
     }
 
     @Test
     void whenSaveSeveralThenGetAll() {
-        var ticket1 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, user.getId()));
-        var ticket2 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 2, 2, user.getId()));
-        var ticket3 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 3, 3, user.getId()));
+        var ticket1 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, 1));
+        var ticket2 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 2, 2, 1));
+        var ticket3 = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 3, 3, 1));
         var result = sql2oTicketRepository.findAll();
         assertThat(result).isEqualTo(List.of(ticket1.get(), ticket2.get(), ticket3.get()));
     }
@@ -128,7 +116,7 @@ class Sql2oTicketRepositoryTest {
 
     @Test
     void whenDeleteThenGetEmptyOptional() {
-        var ticket = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, user.getId()));
+        var ticket = sql2oTicketRepository.save(new Ticket(0, filmSession.getId(), 1, 1, 1));
         var isDeleted = sql2oTicketRepository.deleteById(ticket.get().getId());
         var savedTicket = sql2oTicketRepository.findById(ticket.get().getId());
         assertThat(isDeleted).isTrue();
