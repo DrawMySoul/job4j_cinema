@@ -30,7 +30,7 @@ public class TicketController {
                 Вероятно оно уже занято.
                 Перейдите на страницу бронирования билетов и попробуйте снова.
                 """);
-            return "errors/404";
+            return "errors/409";
         }
         var message = String.format("Ваш сеанс %s, место %s, ряд %s. Приятного просмотра!",
             ticketOptional.get().getSessionId(),

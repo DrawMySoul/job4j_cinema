@@ -59,7 +59,7 @@ class UserControllerTest {
         var view = userController.register(new User(), model);
         var actualExceptionMessage = model.getAttribute("message");
 
-        assertThat(view).isEqualTo("errors/404");
+        assertThat(view).isEqualTo("errors/409");
         assertThat(actualExceptionMessage).isEqualTo(expectedException.getMessage());
     }
 

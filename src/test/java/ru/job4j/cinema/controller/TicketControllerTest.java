@@ -53,7 +53,7 @@ class TicketControllerTest {
         var view = ticketController.buy(ticket, model);
         var actualMessage = model.getAttribute("message");
 
-        assertThat(view).isEqualTo("errors/404");
+        assertThat(view).isEqualTo("errors/409");
         assertThat(actualMessage).isEqualTo(expectedMessage);
     }
 }
